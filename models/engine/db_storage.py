@@ -1,4 +1,8 @@
 #!/usr/bin/python3
+"""
+
+"""
+# handles the details of how to connect to the database and execute SQL commands
 from sqlalchemy import create_engine
 from os import getenv
 from sqlalchemy.orm import scoped_session, sessionmaker, Session
@@ -12,16 +16,13 @@ from models.state import State
 from models.user import User
 
 
-all_classes = {'State': State, 'City': City,
-               'User': User, 'Place': Place,
-               'Review': Review, 'Amenity': Amenity}
-
 class DBStorage:
-
+    """
+    
+    """
     __engine = None
     __session = None
-
-    def __init__(self):->None
+    def __init__(self) -> None:
         username = getenv("HBNB_MYSQL_USER")
         password = getenv("HBNB_MYSQL_PWD")
         host = getenv("HBNB_MYSQL_HOST")
@@ -30,51 +31,53 @@ class DBStorage:
                                                             password,
                                                             host,
                                                             database_name)
-
         self.__engine = create_engine(database_url, pool_pre_ping=True)
 
-        env = getenv("HBNB_ENV")
-        if (env == "test"):
+        if getenv("HBNB_ENV") == "test":
             Base.metadata.drop_all(self.__engine)
 
     def all(self, cls=None):
-        """Query and return all objects by class/generally
-        Return: dictionary (<class-name>.<object-id>: <obj>)
         """
-        obj_dict = {}
-
+        
+        """
+        objs_list = []
         if cls:
-            for row in self.__session.query(cls).all():
-                # populate dict with objects from storage
-                obj_dict.update({'{}.{}'.
-                                format(type(cls).__name__, row.id,): row})
+            if isinstance(cls, str):
+                try:
+                    cls = globals()[cls]
+                except KeyError:
+                    pass
+            if issubclass(cls, Base):
+                objs_list = self.__session.query(cls).all()
         else:
-            for key, val in all_classes.items():
-                for row in self.__session.query(val):
-                    obj_dict.update({'{}.{}'.
-                                    format(type(row).__name__, row.id,): row})
+            for subclass in Base.__subclasses__():
+                objs_list.extend(self.__session.query(subclass).all())
+        obj_dict = {}
+        for obj in objs_list:
+            key = "{}.{}".format(obj.__class__.__name__, obj.id)
+            obj_dict[key] = obj
         return obj_dict
-
+    
     def new(self, obj):
-        """Add object to current database session
+        """
+        
         """
         self.__session.add(obj)
-
-    def save(self):
-        """Commit current database session
-        """
         self.__session.commit()
 
+    def save(self):
+        """"
+        
+        """
+        self.__session.commit()    
+
+                
     def delete(self, obj=None):
-        """Delete obj from database session
+        """
+        
         """
         if obj:
-            # determine class from obj
-            cls_name = all_classes[type(obj).__name__]
-
-            # query class table and delete
-            self.__session.query(cls_name).\
-                filter(cls_name.id == obj.id).delete()
+            self.__session.delete(obj)
 
     def reload(self):
         """Create database session
@@ -84,6 +87,7 @@ class DBStorage:
         # create db tables
         session = sessionmaker(bind=self.__engine,
                                expire_on_commit=False)
+        # previousy:
         # Session = scoped_session(session)
         self.__session = scoped_session(session)
 
