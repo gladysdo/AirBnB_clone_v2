@@ -1,22 +1,14 @@
 #!/usr/bin/env bash
-# Set up server file system for deployment
+# set up dummy html
 
-# install nginx
-sudo apt-get -y update
-sudo apt-get -y install nginx
-sudo service nginx start
-
-# configure file system
-sudo mkdir -p /data/web_static/shared/
-sudo mkdir -p /data/web_static/releases/test/
-echo "Holberton School" | sudo tee /data/web_static/releases/test/index.html > /dev/null
-sudo ln -sf /data/web_static/releases/test/ /data/web_static/current
-
-# set permissions
-sudo chown -R $(whoami):$(whoami) /data/
-
-# configure nginx
-sudo sed -i '44i \\n\tlocation /hbnb_static {\n\t\talias /data/web_static/current/;\n\t}' /etc/nginx/sites-available/default
-
-# restart web server
+server="\n\tlocation /hbnb_static {\n\t\talias /data/web_static/current/;\n\t}"
+file="/etc/nginx/sites-available/default"
+sudo apt-get update -y
+sudo apt-get install nginx -y
+sudo mkdir -p "/data/web_static/releases/test/"
+sudo mkdir "/data/web_static/shared/"
+echo "Holberton" > "/data/web_static/releases/test/index.html"
+rm -f "/data/web_static/current"; ln -s "/data/web_static/releases/test/" "/data/web_static/current"
+sudo chown -hR ubuntu:ubuntu "/data/"
+sudo sed -i "29i\ $server" "$file"
 sudo service nginx restart
