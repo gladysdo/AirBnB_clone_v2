@@ -4,9 +4,8 @@ from fabric.api import *
 import os.path
 
 env.user = 'ubuntu'
-env.hosts = ["	100.26.173.227","35.153.194.90"]
+env.hosts = ["100.26.173.227","35.153.194.90"]
 env.key_filename = "~/id_rsa"
-
 
 def do_deploy(archive_path):
     """distributes an archive to your web servers
