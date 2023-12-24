@@ -16,24 +16,27 @@ from models.state import State
 from models.user import User
 
 
+HBNB_MYSQL_USER = getenv('HBNB_MYSQL_USER')
+HBNB_MYSQL_PWD = getenv('HBNB_MYSQL_PWD')
+HBNB_MYSQL_HOST = getenv('HBNB_MYSQL_HOST')
+HBNB_MYSQL_DB = getenv('HBNB_MYSQL_DB')
+
+
 class DBStorage:
-    """
-    
+    """database storage for mysql conversion
     """
     __engine = None
     __session = None
-    def __init__(self) -> None:
-        username = getenv("HBNB_MYSQL_USER")
-        password = getenv("HBNB_MYSQL_PWD")
-        host = getenv("HBNB_MYSQL_HOST")
-        database_name = getenv("HBNB_MYSQL_DB")
-        database_url = "mysql+mysqldb://{}:{}@{}/{}".format(username,
-                                                            password,
-                                                            host,
-                                                            database_name)
-        self.__engine = create_engine(database_url, pool_pre_ping=True)
 
-        if getenv("HBNB_ENV") == "test":
+    def __init__(self):
+        """initializer for DBStorage"""
+        self.__engine = create_engine('mysql+mysqldb://{}:{}@{}/{}'.format(
+            HBNB_MYSQL_USER,
+            HBNB_MYSQL_PWD,
+            HBNB_MYSQL_HOST,
+            HBNB_MYSQL_DB), pool_pre_ping=True)
+        env = getenv("HBNB_ENV")
+        if (env == "test"):
             Base.metadata.drop_all(self.__engine)
 
     def all(self, cls=None):

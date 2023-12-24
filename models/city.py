@@ -4,10 +4,16 @@ from models.base_model import BaseModel, Base
 from models.state import State
 from sqlalchemy.orm import relationship
 from sqlalchemy import Column, String, ForeignKey
+from os import environ
 
+storage_engine = environ.get("HBNB_TYPE_STORAGE")
 
 class City(BaseModel):
     """ The city class, contains state ID and name """
-    __tablename__ = "cities"
-    state_id = Column(String(60), ForeignKey("states.id"),  nullable=False)
-    name = Column(String(128), nullable=False)
+    if (storage_engine == "db"):
+        __tablename__ = "cities"
+        state_id = Column(String(60), ForeignKey("states.id"),  nullable=False)
+        name = Column(String(128), nullable=False)
+    else:
+        name=""
+        states_id=""
