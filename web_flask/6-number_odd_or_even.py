@@ -41,14 +41,14 @@ def num_display(n):
 @app.route('/number_template/<int:n>', strict_slashes=False)
 def num_html(n):
     """display HTML is "n" is a number only"""
-    return render_template('5-number.html', name=n)
+    return render_template('5-number.html', n=n)
 
 
 @app.route('/number_odd_or_even/<int:n>', strict_slashes=False)
 def num_html_even_odd(n):
     """display HTML is "n" is a number only
     H1 tag: Number: n is even|odd"""
-    return render_template('6-number_odd_or_even.html', name=n)
+    return render_template('6-number_odd_or_even.html', n=n)
 
 
 if __name__ == "__main__":
