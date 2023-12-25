@@ -40,26 +40,22 @@ class DBStorage:
             Base.metadata.drop_all(self.__engine)
 
     def all(self, cls=None):
-        """
+    obj_dict = {}
+    
+    if cls:
+        if isinstance(cls, str):
+            cls = globals().get(cls)
         
-        """
-        objs_list = []
-        if cls:
-            if isinstance(cls, str):
-                try:
-                    cls = globals()[cls]
-                except KeyError:
-                    pass
-            if issubclass(cls, Base):
-                objs_list = self.__session.query(cls).all()
-        else:
-            for subclass in Base.__subclasses__():
-                objs_list.extend(self.__session.query(subclass).all())
-        obj_dict = {}
-        for obj in objs_list:
-            key = "{}.{}".format(obj.__class__.__name__, obj.id)
-            obj_dict[key] = obj
-        return obj_dict
+        if cls and issubclass(cls, Base):
+            objs_list = self.__session.query(cls).all()
+            obj_dict = {"{}.{}".format(obj.__class__.__name__, obj.id): obj for obj in objs_list}
+    else:
+        for subclass in Base.__subclasses__():
+            objs_list = self.__session.query(subclass).all()
+            obj_dict.update({"{}.{}".format(obj.__class__.__name__, obj.id): obj for obj in objs_list})
+
+    return obj_dict
+
     
     def new(self, obj):
         """
