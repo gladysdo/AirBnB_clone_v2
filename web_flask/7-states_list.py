@@ -18,6 +18,7 @@ def teardown_db(exception):
 def states_list():
     """ list of state ids"""
     data = storage.all(State)
+    print("Data:", data)
     return render_template('7-states_list.html', total=data.values())
 
 
